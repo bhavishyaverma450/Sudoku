@@ -19,7 +19,7 @@ public class Sudoku {
     String[] puzzle1 = {
             "--74916-5",
             "2---6-3-9",
-            "-----7-1",
+            "-----7-1-", // Fixed: now has 9 characters
             "-586----4",
             "--3----9-",
             "--62--187",
@@ -45,7 +45,6 @@ public class Sudoku {
     JPanel textPanel = new JPanel();
     JPanel boardPanel = new JPanel();
     JPanel buttonsPanel = new JPanel();
-    JLabel gameOverText = new JLabel();
 
     JButton numSelect = null;
     int errors = 0;
@@ -67,6 +66,7 @@ public class Sudoku {
         frame.add(textPanel, BorderLayout.NORTH);
 
         boardPanel.setLayout(new GridLayout(9, 9));
+        boardPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         setUpTiles();
         frame.add(boardPanel, BorderLayout.CENTER);
 
@@ -75,7 +75,6 @@ public class Sudoku {
         frame.add(buttonsPanel, BorderLayout.SOUTH);
 
         frame.setVisible(true);
-
     }
 
     public void setUpTiles() {
@@ -92,6 +91,8 @@ public class Sudoku {
                     tile.setFont(new Font("Arial", Font.PLAIN, 20));
                     tile.setBackground(Color.white);
                 }
+
+                // Custom border for 3x3 boxes
                 if ((r == 2 && c == 2) || (r == 2 && c == 5) || (r == 5 && c == 2) || (r == 5 && c == 5)) {
                     tile.setBorder(BorderFactory.createMatteBorder(1, 1, 5, 5, Color.BLACK));
                 } else if (r == 2 || r == 5) {
@@ -101,6 +102,7 @@ public class Sudoku {
                 } else {
                     tile.setBorder(BorderFactory.createLineBorder(Color.BLACK));
                 }
+
                 tile.setFocusable(false);
                 boardPanel.add(tile);
 
@@ -109,27 +111,34 @@ public class Sudoku {
                         Tiles tile = (Tiles) e.getSource();
                         int r = tile.r;
                         int c = tile.c;
+
                         if (numSelect != null) {
-                            if (tile.getText() != "") {
+                            if (!tile.getText().equals("")) {
                                 return;
                             }
                             String numSelectedText = numSelect.getText();
                             String tileSol = String.valueOf(solution1[r].charAt(c));
+
+                            if (!isValidMove(r, c, numSelectedText)) {
+                                errors++;
+                                textLabel.setText("Invalid move!!! Errors: " + errors);
+                                return;
+                            }
+
                             if (tileSol.equals(numSelectedText)) {
                                 tile.setText(numSelectedText);
                                 countDash--;
+                                if (countDash == 0) {
+                                    JOptionPane.showMessageDialog(frame, "Sudoku Completed!");
+                                    System.exit(0);
+                                }
                             } else {
                                 errors++;
-                                textLabel.setText("Sudoku: " + String.valueOf(errors));
+                                textLabel.setText("Wrong Value!!! Errors: " + errors);
                             }
                         }
                     }
                 });
-                if (countDash == 0) {
-                    gameOverText.setFont(new Font("Railway", Font.BOLD, 26));
-                    gameOverText.setBackground(Color.BLACK);
-                    gameOverText.setText("Sudoku Completed!!!");
-                }
             }
         }
     }
@@ -154,5 +163,25 @@ public class Sudoku {
                 }
             });
         }
+    }
+
+    public boolean isValidMove(int row, int col, String num) {
+        // Check row
+        for (int c = 0; c < 9; c++) {
+            Component comp = boardPanel.getComponent(row * 9 + c);
+            if (comp instanceof JButton && ((JButton) comp).getText().equals(num)) {
+                return false;
+            }
+        }
+
+        // Check column
+        for (int r = 0; r < 9; r++) {
+            Component comp = boardPanel.getComponent(r * 9 + col);
+            if (comp instanceof JButton && ((JButton) comp).getText().equals(num)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

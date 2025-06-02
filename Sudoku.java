@@ -121,7 +121,7 @@ public class Sudoku {
 
                             if (!isValidMove(r, c, numSelectedText)) {
                                 errors++;
-                                textLabel.setText("Invalid move!!! Errors: " + errors);
+                                textLabel.setText("Invalid move!! Errors: " + errors);
                                 return;
                             }
 
@@ -134,7 +134,7 @@ public class Sudoku {
                                 }
                             } else {
                                 errors++;
-                                textLabel.setText("Wrong Value!!! Errors: " + errors);
+                                textLabel.setText("Wrong Value!! Errors: " + errors);
                             }
                         }
                     }
